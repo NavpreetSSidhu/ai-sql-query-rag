@@ -8,7 +8,12 @@ async function generateEmbeddings() {
   // List of tables to analyze
   const tables = [
     "users",
+    "teams",
     "team_user",
+    "bank_account_transactions",
+    "matters",
+    "contacts",
+    "invoices",
     // Add more tables here
   ];
 
