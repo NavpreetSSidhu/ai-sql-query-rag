@@ -1,11 +1,6 @@
 # AI SQL Query Generator
 
-A demonstration application showcasing Query RAG (Retrieval-Augmented Generation) capabilities with AI-powered SQL query generation. This application allows users to upload CSV files, automatically analyze their contents, and use natural language to query the data through an AI workflow.
-
-You can watch the full video here:
-
-[![Learn about Query RAG](https://img.youtube.com/vi/5LIfSpr3GDM/0.jpg)](https://youtu.be/5LIfSpr3GDM)
-> 🎥 How to build advanced RAG systems with AI-generated SQL
+A demonstration application showcasing Query RAG (Retrieval-Augmented Generation) capabilities with AI-powered SQL query generation.
 
 ## Features
 
@@ -23,10 +18,12 @@ You can watch the full video here:
 The application consists of two main components:
 
 ### Frontend (`ui/src/App.tsx`)
+
 - React-based UI utilizing TypeScript and shadcn/ui components
 - Enables users to upload CSV files and query the data using natural language
 
 ### Backend (`server/src`)
+
 - Express.js server with TypeScript
 - PostgreSQL database integration
 - Multi-step AI query processing pipeline:
@@ -37,7 +34,9 @@ The application consists of two main components:
   5. Answer validation
 
 ### Table Analyzer (`server/src/tableAnalyzer.ts`)
+
 The table analyzer component performs intelligent data profiling:
+
 - Samples data from uploaded tables
 - Analyzes column types, distinct values, and null ratios
 - Generates statistical summaries (min/max for numeric/dates)
@@ -49,13 +48,16 @@ The table analyzer component performs intelligent data profiling:
 1. Install dependencies:
 
 # Frontend
+
 ```
 cd ui
 npm install
 ```
 
 # Backend
+
 1. Install dependencies:
+
 ```
 cd server
 npm install
@@ -77,12 +79,14 @@ OPENAI_API_KEY=your_openai_api_key
 3. Start the development servers:
 
 # Frontend
+
 ```
 cd ui
 npm run dev
 ```
 
 # Backend
+
 ```
 cd server
 npm run dev
@@ -91,11 +95,13 @@ npm run dev
 ## How It Works
 
 1. **CSV Upload**
+
    - Upload a CSV file through drag-and-drop or file selection
    - The server automatically detects column types and creates a PostgreSQL table
    - Table schema is analyzed and stored for future queries
 
 2. **Query Processing**
+
    - User enters a natural language question
    - Query is classified as general, data-specific, or out-of-scope
    - For data queries:
@@ -112,6 +118,7 @@ npm run dev
 ## Example Usage
 
 1. Upload a CSV file:
+
    ```
    Drag and drop your CSV file into the upload area
    Enter a table name for your data
