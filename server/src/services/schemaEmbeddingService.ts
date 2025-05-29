@@ -413,34 +413,83 @@ class SchemaEmbeddingService {
   private async storeEmbedding(record: EmbeddingRecord): Promise<void> {
     const client = await this.pool.connect();
 
+    let insertQuery: string;
     try {
-      const query = `
+      if (record.embeddingType === "table") {
+        // For table embeddings, use ON CONFLICT with the table-specific unique index
+        insertQuery = `
         INSERT INTO schema_embeddings (
-          embedding_type, table_name, column_name, description, 
-          business_context, data_type, sample_values, common_patterns,
-          embedding, metadata
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (embedding_type, table_name, COALESCE(column_name, ''))
+          embedding_type,
+          table_name,
+          column_name,
+          description,
+          business_context,
+          data_type,
+          sample_values,
+          common_patterns,
+          embedding,
+          metadata,
+          relevance_score,
+          usage_count
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ON CONFLICT (embedding_type, table_name) 
+        WHERE embedding_type = 'table' AND column_name IS NULL
         DO UPDATE SET
           description = EXCLUDED.description,
           business_context = EXCLUDED.business_context,
           embedding = EXCLUDED.embedding,
           metadata = EXCLUDED.metadata,
-          updated_at = NOW();
+          updated_at = NOW()
       `;
+      } else {
+        // For column and relationship embeddings
+        insertQuery = `
+        INSERT INTO schema_embeddings (
+          embedding_type,
+          table_name,
+          column_name,
+          description,
+          business_context,
+          data_type,
+          sample_values,
+          common_patterns,
+          embedding,
+          metadata,
+          relevance_score,
+          usage_count
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ON CONFLICT (embedding_type, table_name, column_name) 
+        WHERE embedding_type = $1 AND column_name IS NOT NULL
+        DO UPDATE SET
+          description = EXCLUDED.description,
+          business_context = EXCLUDED.business_context,
+          data_type = EXCLUDED.data_type,
+          sample_values = EXCLUDED.sample_values,
+          common_patterns = EXCLUDED.common_patterns,
+          embedding = EXCLUDED.embedding,
+          metadata = EXCLUDED.metadata,
+          updated_at = NOW()
+      `;
+      }
 
-      await client.query(query, [
+      const values = [
         record.embeddingType,
         record.tableName,
         record.columnName || null,
         record.description,
-        record.businessContext,
+        record.businessContext || null,
         record.dataType || null,
         record.sampleValues || null,
         record.commonPatterns || null,
-        `[${record.embedding.join(",")}]`,
-        JSON.stringify(record.metadata),
-      ]);
+        `[${record.embedding.join(",")}]`, // Convert array to PostgreSQL vector format
+        JSON.stringify(record.metadata || {}),
+        1.0,
+        0,
+      ];
+
+      await client.query(insertQuery, values);
+    } catch (error) {
+      console.error("❌ Error storing embedding:", error);
     } finally {
       client.release();
     }

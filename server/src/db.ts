@@ -40,9 +40,26 @@ export const initializeTables = async () => {
       relevance_score FLOAT DEFAULT 1.0,
       usage_count INTEGER DEFAULT 0,
       created_at TIMESTAMP DEFAULT NOW(),
-      updated_at TIMESTAMP DEFAULT NOW(),
-      CONSTRAINT unique_embedding UNIQUE (embedding_type, table_name, COALESCE(column_name, ''))
-    )
+      updated_at TIMESTAMP DEFAULT NOW()
+      );
+  `);
+
+  await query(`
+    CREATE UNIQUE INDEX idx_unique_table_embedding 
+ON schema_embeddings (embedding_type, table_name) 
+WHERE embedding_type = 'table' AND column_name IS NULL;
+  `);
+
+  await query(`
+    CREATE UNIQUE INDEX idx_unique_column_embedding 
+    ON schema_embeddings (embedding_type, table_name, column_name) 
+    WHERE embedding_type = 'column' AND column_name IS NOT NULL;
+  `);
+
+  await query(`
+    CREATE UNIQUE INDEX idx_unique_relationship_embedding 
+    ON schema_embeddings (embedding_type, table_name, column_name) 
+    WHERE embedding_type = 'relationship' AND column_name IS NOT NULL;
   `);
 
   // Create indexes for schema_embeddings
