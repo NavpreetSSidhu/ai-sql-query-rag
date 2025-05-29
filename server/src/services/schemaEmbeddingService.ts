@@ -17,12 +17,12 @@ class SchemaEmbeddingService {
   /**
    * Main method to generate and store all embeddings
    */
-  async generateAndStoreAllEmbeddings(): Promise<void> {
+  async generateAndStoreAllEmbeddings(tables: string[]): Promise<void> {
     console.log("🚀 Starting schema embedding generation...");
 
     try {
       // 1. Extract schema information
-      const schemaInfo = await this.extractSchemaMetadata();
+      const schemaInfo = await this.extractSchemaMetadata(tables);
 
       // 2. Generate and store table embeddings
       await this.generateTableEmbeddings(schemaInfo);
@@ -43,7 +43,7 @@ class SchemaEmbeddingService {
   /**
    * Extract comprehensive schema metadata
    */
-  private async extractSchemaMetadata(): Promise<TableInfo[]> {
+  private async extractSchemaMetadata(tables: string[]): Promise<TableInfo[]> {
     const client = await this.pool.connect();
 
     try {
@@ -57,11 +57,12 @@ class SchemaEmbeddingService {
         LEFT JOIN pg_class c ON c.relname = t.table_name
         WHERE t.table_schema = 'public'
         AND t.table_type = 'BASE TABLE'
+        AND t.table_name = ANY($1)
         ORDER BY t.table_name;
       `;
 
-      const tablesResult = await client.query(tablesQuery);
-      const tables: TableInfo[] = [];
+      const tablesResult = await client.query(tablesQuery, [tables]);
+      const tablesInfo: TableInfo[] = [];
 
       for (const tableRow of tablesResult.rows) {
         const tableName = tableRow.table_name;
@@ -75,7 +76,7 @@ class SchemaEmbeddingService {
         // Get indexes for this table
         const indexes = await this.getTableIndexes(client, tableName);
 
-        tables.push({
+        tablesInfo.push({
           tableName,
           tableType: tableRow.table_type,
           tableComment: tableRow.table_comment,
@@ -85,8 +86,8 @@ class SchemaEmbeddingService {
         });
       }
 
-      console.log(`📊 Extracted metadata for ${tables.length} tables`);
-      return tables;
+      console.log(`📊 Extracted metadata for ${tablesInfo.length} tables`);
+      return tablesInfo;
     } finally {
       client.release();
     }

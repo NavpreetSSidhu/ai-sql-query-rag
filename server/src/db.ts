@@ -40,7 +40,8 @@ export const initializeTables = async () => {
       relevance_score FLOAT DEFAULT 1.0,
       usage_count INTEGER DEFAULT 0,
       created_at TIMESTAMP DEFAULT NOW(),
-      updated_at TIMESTAMP DEFAULT NOW()
+      updated_at TIMESTAMP DEFAULT NOW(),
+      CONSTRAINT unique_embedding UNIQUE (embedding_type, table_name, COALESCE(column_name, ''))
     )
   `);
 

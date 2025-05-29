@@ -4,7 +4,6 @@ A demonstration application showcasing Query RAG (Retrieval-Augmented Generation
 
 ## Features
 
-- 📤 CSV file upload with drag-and-drop support
 - 📊 Automatic schema detection and PostgreSQL table creation
 - 🤖 AI-powered natural language to SQL conversion
 - 🔍 Smart query analysis and validation
@@ -20,7 +19,7 @@ The application consists of two main components:
 ### Frontend (`ui/src/App.tsx`)
 
 - React-based UI utilizing TypeScript and shadcn/ui components
-- Enables users to upload CSV files and query the data using natural language
+- Enables users to query the data using natural language
 
 ### Backend (`server/src`)
 
@@ -94,13 +93,7 @@ npm run dev
 
 ## How It Works
 
-1. **CSV Upload**
-
-   - Upload a CSV file through drag-and-drop or file selection
-   - The server automatically detects column types and creates a PostgreSQL table
-   - Table schema is analyzed and stored for future queries
-
-2. **Query Processing**
+1. **Query Processing**
 
    - User enters a natural language question
    - Query is classified as general, data-specific, or out-of-scope
@@ -110,22 +103,14 @@ npm run dev
      - Results are formatted into natural language
      - Response is validated for accuracy
 
-3. **Error Handling**
+2. **Error Handling**
    - Multiple retry attempts for failed queries
    - Context-aware error messages
    - Query regeneration with previous error context
 
 ## Example Usage
 
-1. Upload a CSV file:
-
-   ```
-   Drag and drop your CSV file into the upload area
-   Enter a table name for your data
-   Click "Upload CSV"
-   ```
-
-2. Query your data:
+1. Query your data:
    ```
    "Show me the total sales by region for last month"
    "What was the average order value per customer?"

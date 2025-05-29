@@ -28,7 +28,7 @@ async function generateEmbeddings() {
 
     // 3. Generate embeddings
     console.log("🤖 Generating embeddings...");
-    await embeddingService.generateAndStoreAllEmbeddings();
+    await embeddingService.generateAndStoreAllEmbeddings(tables);
 
     console.log("✅ Schema embedding generation completed!");
   } catch (error: any) {
