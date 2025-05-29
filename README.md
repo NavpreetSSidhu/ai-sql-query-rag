@@ -91,6 +91,14 @@ cd server
 npm run dev
 ```
 
+# Backend - Generate embeddings
+
+```
+cd server
+NODE_ENV=development npx ts-node -r dotenv/config src/scripts/initializeDb.ts
+NODE_ENV=development npx ts-node -r dotenv/config src/scripts/generateSchemaEmbeddings.ts
+```
+
 ## How It Works
 
 1. **Query Processing**
