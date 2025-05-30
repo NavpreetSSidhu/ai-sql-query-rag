@@ -20,7 +20,7 @@ export const initializeTables = async () => {
       analysis JSONB,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
+    );
   `);
 
   // Create schema_embeddings table
@@ -41,42 +41,67 @@ export const initializeTables = async () => {
       usage_count INTEGER DEFAULT 0,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
-      );
+    );
+  `);
+
+  // Conditionally create unique indexes
+  await query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_indexes WHERE indexname = 'idx_unique_table_embedding'
+      ) THEN
+        CREATE UNIQUE INDEX idx_unique_table_embedding 
+        ON schema_embeddings (embedding_type, table_name)
+        WHERE embedding_type = 'table' AND column_name IS NULL;
+      END IF;
+    END
+    $$;
   `);
 
   await query(`
-    CREATE UNIQUE INDEX idx_unique_table_embedding 
-ON schema_embeddings (embedding_type, table_name) 
-WHERE embedding_type = 'table' AND column_name IS NULL;
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_indexes WHERE indexname = 'idx_unique_column_embedding'
+      ) THEN
+        CREATE UNIQUE INDEX idx_unique_column_embedding 
+        ON schema_embeddings (embedding_type, table_name, column_name)
+        WHERE embedding_type = 'column' AND column_name IS NOT NULL;
+      END IF;
+    END
+    $$;
   `);
 
   await query(`
-    CREATE UNIQUE INDEX idx_unique_column_embedding 
-    ON schema_embeddings (embedding_type, table_name, column_name) 
-    WHERE embedding_type = 'column' AND column_name IS NOT NULL;
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_indexes WHERE indexname = 'idx_unique_relationship_embedding'
+      ) THEN
+        CREATE UNIQUE INDEX idx_unique_relationship_embedding 
+        ON schema_embeddings (embedding_type, table_name, column_name)
+        WHERE embedding_type = 'relationship' AND column_name IS NOT NULL;
+      END IF;
+    END
+    $$;
   `);
 
-  await query(`
-    CREATE UNIQUE INDEX idx_unique_relationship_embedding 
-    ON schema_embeddings (embedding_type, table_name, column_name) 
-    WHERE embedding_type = 'relationship' AND column_name IS NOT NULL;
-  `);
-
-  // Create indexes for schema_embeddings
+  // Create additional indexes
   await query(`
     CREATE INDEX IF NOT EXISTS idx_schema_embeddings_vector 
     ON schema_embeddings USING ivfflat (embedding vector_cosine_ops) 
-    WITH (lists = 100)
+    WITH (lists = 100);
   `);
 
   await query(`
     CREATE INDEX IF NOT EXISTS idx_schema_embeddings_type 
-    ON schema_embeddings (embedding_type)
+    ON schema_embeddings (embedding_type);
   `);
 
   await query(`
     CREATE INDEX IF NOT EXISTS idx_schema_embeddings_table 
-    ON schema_embeddings (table_name)
+    ON schema_embeddings (table_name);
   `);
 };
 

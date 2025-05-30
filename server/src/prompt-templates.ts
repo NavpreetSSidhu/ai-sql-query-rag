@@ -55,7 +55,7 @@ export interface SchemaAnalysisResponse {
 }
 
 export interface TriageResponse {
-  queryType: "GENERAL_QUESTION" | "DATA_QUESTION" | "OUT_OF_SCOPE";
+  queryType: "GENERAL_QUESTION" | "DATA_QUESTION" | "OUT_OF_SCOPE" | "GREETING";
   confidence: number;
   reasoning: string;
 }
@@ -71,13 +71,14 @@ export const prompts = {
   triage: (message: string) => ({
     system: `You are a query classifier for a legal practice management system. 
     Classify the user's question into one of these categories:
+    - GREETING: Simple greetings or salutations
     - GENERAL_QUESTION: Questions about the system, features, or general information
     - DATA_QUESTION: Questions that require querying the database
     - OUT_OF_SCOPE: Questions that cannot be answered by the system
     
     Respond in JSON format with:
     {
-      "queryType": "GENERAL_QUESTION" | "DATA_QUESTION" | "OUT_OF_SCOPE",
+      "queryType": "GREETING" | "GENERAL_QUESTION" | "DATA_QUESTION" | "OUT_OF_SCOPE",
       "confidence": number between 0 and 1,
       "reasoning": "explanation for the classification"
     }`,

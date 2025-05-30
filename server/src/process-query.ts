@@ -11,7 +11,7 @@ import SchemaContextService from "./services/schemaContextService";
 interface QueryResponse {
   response: string;
   timestamp: string;
-  queryType: "GENERAL_QUESTION" | "DATA_QUESTION" | "OUT_OF_SCOPE";
+  queryType: "GENERAL_QUESTION" | "DATA_QUESTION" | "OUT_OF_SCOPE" | "GREETING";
 }
 
 export async function processQuery(message: string): Promise<QueryResponse> {
@@ -29,6 +29,12 @@ export async function processQuery(message: string): Promise<QueryResponse> {
   let response = "";
 
   switch (queryType) {
+    case "GREETING":
+      console.log("👋 Processing greeting message");
+      response =
+        "Hello! I'm your database assistant. How can I help you with your data today?";
+      break;
+
     case "GENERAL_QUESTION":
       console.log("💭 Processing general question");
       const generalPrompt = prompts.generalAnswer(message);

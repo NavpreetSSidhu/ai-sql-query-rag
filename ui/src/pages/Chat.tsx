@@ -55,14 +55,24 @@ const Chat = () => {
       const response = await chatAPI.sendMessage(inputMessage);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response.data.message,
+        content:
+          response.data.response ||
+          response.data.answer ||
+          "No response received",
         role: "assistant",
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      // Handle error appropriately
+    } catch (error: any) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content:
+          error.response?.data?.message ||
+          "An error occurred while processing your request",
+        role: "assistant",
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
     }
