@@ -530,18 +530,20 @@ class SchemaEmbeddingService {
   private inferTablePurpose(table: TableInfo): string {
     const tableName = table.tableName.toLowerCase();
     const purposePatterns: Record<string, string> = {
-      user: "Stores user account information and profiles",
-      customer: "Customer data and contact information",
-      order: "Transaction and purchase records",
-      product: "Product catalog and inventory information",
-      payment: "Financial transaction and payment records",
-      invoice: "Billing and invoice data",
-      log: "System activity and audit trails",
-      session: "User session and authentication data",
-      config: "System configuration and settings",
-      audit: "Audit trail and change tracking",
-      report: "Reporting and analytics data",
-      notification: "System notifications and alerts",
+      users:
+        "Stores user account information and profiles. Each user has a unique email and password. Users belong to teams through the team_user table and have access to their team's matters, transactions, invoices, and contacts.",
+      teams:
+        "Stores team information and members. Teams are the primary organizational unit. Each team has multiple users (through team_user) and owns multiple matters, transactions, invoices, and contacts.",
+      team_user:
+        "Links users to teams and stores their roles within the team. This is a junction table that enables the many-to-many relationship between users and teams, and determines what resources (matters, transactions, etc.) a user can access.",
+      matters:
+        "Stores legal matters and their details. Each matter belongs to a team, and team members have access to their team's matters. Matters can be associated with transactions, invoices, and contacts.",
+      bank_account_transactions:
+        "Stores financial transactions related to matters. Each transaction is associated with a team and can be linked to specific matters. Team members can view transactions for their team's matters.",
+      invoices:
+        "Stores invoice information for matters. Each invoice is associated with a team and can be linked to specific matters. Team members can view and manage invoices for their team's matters.",
+      contacts:
+        "Stores contact information related to matters. Each contact is associated with a team and can be linked to specific matters. Team members can view and manage contacts for their team's matters.",
     };
 
     for (const [pattern, purpose] of Object.entries(purposePatterns)) {
@@ -609,7 +611,7 @@ class SchemaEmbeddingService {
     }
 
     if (hasUserId) {
-      patterns.push(`SELECT * FROM ${table.tableName} WHERE user_id = ?`);
+      patterns.push(`SELECT * FROM ${table.tableName} WHERE id = ?`);
     }
 
     return patterns;

@@ -70,6 +70,18 @@ export interface ValidateAnswerResponse {
 export const prompts = {
   triage: (message: string) => ({
     system: `You are a query classifier for a legal practice management system. 
+    The system primarily works with these core tables:
+    - users: Contains user-specific information
+    - teams: Contains team information
+    - team_user: Links users to teams with their roles (contains user_id and team_id)
+    - matters: Contains legal matters, belongs to teams
+    - bank_account_transactions: Contains financial transactions
+    - contacts: Contains contact information
+    - invoices: Contains invoice information
+    
+    All tables have 'id' as their primary key, and there are relationships between these tables.
+    Users belong to teams through team_user, and team members have access to their team's matters, transactions, invoices, and contacts.
+    
     Classify the user's question into one of these categories:
     - GREETING: Simple greetings or salutations
     - GENERAL_QUESTION: Questions about the system, features, or general information
@@ -100,6 +112,48 @@ export const prompts = {
 
   schemaAnalysis: (input: SchemaAnalysisInput, message: string) => ({
     system: `You are a database schema analyzer for a legal practice management system.
+    The system primarily works with these core tables and their relationships:
+    
+    Core Tables:
+    1. users
+       - Primary key: id
+       - Contains user-specific information
+    
+    2. teams
+       - Primary key: id
+       - Contains team information
+    
+    3. team_user
+       - Primary key: id
+       - Links users to teams
+       - Contains user_id and team_id
+       - Contains role information
+    
+    4. matters
+       - Primary key: id
+       - Belongs to teams
+       - Team members have access to their team's matters
+    
+    5. bank_account_transactions
+       - Primary key: id
+       - Contains financial transactions
+    
+    6. contacts
+       - Primary key: id
+       - Contains contact information
+    
+    7. invoices
+       - Primary key: id
+       - Contains invoice information
+    
+    Key Relationships:
+    - Users belong to teams through team_user table
+    - Team members have access to their team's:
+      * Matters
+      * Transactions
+      * Invoices
+      * Contacts
+    
     Analyze the user's question and determine how to query the database.
     
     Available schema context:
